@@ -55,6 +55,17 @@ def call_ecosystem_api():
         st.session_state.df = df_tot
     else:
         st.session_state['day_delta'] = 'Invalid'
+        
+st.markdown(
+    """
+    <style>
+        section[data-testid="stSidebar"] {
+            width: 25% !important; # Set the width to your desired value
+        }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
 
 with st.sidebar:
     st.subheader("Parametri di ricerca")
@@ -69,36 +80,37 @@ with st.sidebar:
     
     # Tiles da scaricare in base alla regione selezionata
     if regione == 'Abruzzo':
-        tiles_to_search = ['R122_T33TUG', 'R122_T33TUH', 'R079_T33TVG', 'R122_T33TVH']
+        region_tiles = ['R122_T33TUG', 'R122_T33TUH', 'R079_T33TVG', 'R122_T33TVH']
     elif regione == 'Sardegna':
-        tiles_to_search = ['R022_T32SMJ', 'R022_T32SNJ', 'R022_T32TMK', 'R065_T32TML',	'R022_T32TNK', 'R022_T32TNL']
+        region_tiles = ['R022_T32SMJ', 'R022_T32SNJ', 'R022_T32TMK', 'R065_T32TML',	'R022_T32TNK', 'R022_T32TNL']
     elif regione == 'Puglia':
-        tiles_to_search = ['R079_T33TWF', 'R079_T33TWG', 'R036_T33TXE', 'R036_T33TXF', 'R036_T33TYE', 'R036_T33TYF']
+        region_tiles = ['R079_T33TWF', 'R079_T33TWG', 'R036_T33TXE', 'R036_T33TXF', 'R036_T33TYE', 'R036_T33TYF']
     elif regione == 'Bolzano':
-        tiles_to_search = ['R022_T32TPS', 'R065_T32TPT', 'R022_T32TQT']
+        region_tiles = ['R022_T32TPS', 'R065_T32TPT', 'R022_T32TQT']
     elif regione == 'Calabria':
-        tiles_to_search = ['R036_T33SWC', 'R079_T33SWD', 'R036_T33SXC', 'R036_T33SXD']
+        region_tiles = ['R036_T33SWC', 'R079_T33SWD', 'R036_T33SXC', 'R036_T33SXD']
     elif regione == 'Campania':
-        tiles_to_search = ['R079_T33TVE', 'R079_T33TVF', 'R079_T33TWE']
+        region_tiles = ['R079_T33TVE', 'R079_T33TVF', 'R079_T33TWE']
     elif regione == 'Emilia_Romagna':
-        tiles_to_search = ['R065_T32TNQ', 'R022_T32TPQ', 'R022_T32TQP', 'R022_T32TQQ']
+        region_tiles = ['R065_T32TNQ', 'R022_T32TPQ', 'R022_T32TQP', 'R022_T32TQQ']
     elif regione == 'Friuli':
-        tiles_to_search =  ['R022_T33TUM', 'R122_T33TVL']
+        region_tiles =  ['R022_T33TUM', 'R122_T33TVL']
     elif regione == 'Lazio':
-        tiles_to_search = ['R022_T32TPM', 'R122_T33TTF', 'R122_T33TTG', 'R122_T33TUF']
+        region_tiles = ['R022_T32TPM', 'R122_T33TTF', 'R122_T33TTG', 'R122_T33TUF']
     elif regione == 'Lombardia':
-        tiles_to_search = ['R065_T32TMR', 'R065_T32TMS', 'R065_T32TNR', 'R065_T32TNS']
+        region_tiles = ['R065_T32TMR', 'R065_T32TMS', 'R065_T32TNR', 'R065_T32TNS']
     elif regione == 'Umbria_Marche':
-        tiles_to_search = ['R122_T33TUJ', 'R122_T32TQN']
+        region_tiles = ['R122_T33TUJ', 'R122_T32TQN']
     elif regione == 'Piemonte':
-        tiles_to_search = ['R108_T32TLP', 'R108_T32TLQ', 'R108_T32TLR', 'R108_T32TLS', 'R065_T32TMP', 'R065_T32TMQ']
+        region_tiles = ['R108_T32TLP', 'R108_T32TLQ', 'R108_T32TLR', 'R108_T32TLS', 'R065_T32TMP', 'R065_T32TMQ']
     elif regione == 'Sicilia':
-        tiles_to_search = ['R122_T33STV',	'R122_T33STA', 'R122_T33STB', 'R122_T33STC', 'R079_T33SUB', 'R079_T33SUC', 'R079_T33SUV', 'R079_T33SVA', 'R079_T33SVB',	'R079_T33SVC', 'R036_T33SWA', 'R036_T33SWB']
+        region_tiles = ['R122_T33STV',	'R122_T33STA', 'R122_T33STB', 'R122_T33STC', 'R079_T33SUB', 'R079_T33SUC', 'R079_T33SUV', 'R079_T33SVA', 'R079_T33SVB',	'R079_T33SVC', 'R036_T33SWA', 'R036_T33SWB']
     elif regione == 'Toscana':
-        tiles_to_search = ['R022_T32TNM',	'R022_T32TNN', 'R065_T32TNP', 'R022_T32TPN', 'R022_T32TPP']
+        region_tiles = ['R022_T32TNM',	'R022_T32TNN', 'R065_T32TNP', 'R022_T32TPN', 'R022_T32TPP']
     elif regione == 'Veneto':
-        tiles_to_search = ['R022_T32TPR', 'R022_T32TQR', 'R022_T32TQS', 'R122_T33TUK', 'R122_T33TUL']
+        region_tiles = ['R022_T32TPR', 'R022_T32TQR', 'R022_T32TQS', 'R122_T33TUK', 'R122_T33TUL']
     
+    tiles_to_search = st.multiselect("Tiles", region_tiles, default=region_tiles, placeholder="Scegli una Regione per popolare...")
     
     sideCol1, sideCol2 = st.columns(2)
     with sideCol1:
@@ -122,6 +134,10 @@ with st.sidebar:
     limit = '1000' #max = 1000
 
     request_list = []
+    
+    if len(tiles_to_search) == 0:
+        tiles_to_search = region_tiles
+    
     for tile in tiles_to_search:
         filter_tile = "contains(Name, '_{}_')".format(tile)
         req = base_url +'?$filter={} and {} and {} and {} and {}&$orderby=ContentDate/Start desc&$top={}'.format(filter_collection, filter_level, filter_tile, filter_sensing_dt, filter_online, limit)
@@ -164,12 +180,28 @@ with tab2:
             "features": []
         }
     
-        for polygon in df['GeoFootprint'].values:
-            feature_obj = {"type":"Feature", "geometry": polygon}
+        for (polygon, id, name) in zip(df['GeoFootprint'].values, df['Id'].values, df['Name'].values):
+            feature_obj = {"type":"Feature", "geometry": polygon, "properties":{"id":id, "name": name}}
             geojson_obj['features'].append(feature_obj)
+            
+        # footprints s2 images
+        s2tooltip = folium.GeoJsonTooltip(
+            fields=["id","name"],
+            localize=True,
+            sticky=False,
+            labels=True,
+            style="""
+                background-color: #F0EFEF;
+                border: 2px solid #6495ED;
+                border-radius: 3px;
+                box-shadow: 3px;
+            """,
+            max_width=800,
+        )
         
         s2footprints = folium.GeoJson(
             geojson_obj,
+            tooltip=s2tooltip,
             name="S2 Footprints",
             style_function=lambda feature: {"fillColor":"#005577","fillOpacity":0.0, "color":"#005577", "weight":2, "dashArray": "5,5"}
         ).add_to(m)
