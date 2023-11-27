@@ -50,8 +50,20 @@ def call_ecosystem_api():
                 # DataFrame drlla risposta
                 if (len(json['value'])>0):
                     df = pd.DataFrame.from_dict(json['value']).dropna()
-                    df = df[['Id', 'Name','OriginDate','GeoFootprint','Online']]
+                    df = df[['Id', 'Name','OriginDate','GeoFootprint','Online','Attributes']]
                     # print('Immagini trovate per la singola richiesta: {}'.format(str(len(df))))
+                    # aggiungo campi estratti da 'Attributes'
+                    df['Tile'] = df['Attributes'].apply(lambda x: next((prop['Value'] for prop in x if prop['Name'] == 'tileId'), None))
+                    df['Cloud %'] = df['Attributes'].apply(lambda x: next((prop['Value'] for prop in x if prop['Name'] == 'cloudCover'), None))
+                    df['Processing Date'] = df['Attributes'].apply(lambda x: next((prop['Value'] for prop in x if prop['Name'] == 'processingDate'), None))
+                    df['Platform'] = df['Attributes'].apply(lambda x: next((prop['Value'] for prop in x if prop['Name'] == 'platformShortName'), None))
+                    df['Instrument'] = df['Attributes'].apply(lambda x: next((prop['Value'] for prop in x if prop['Name'] == 'instrumentShortName'), None))
+                    df['relative Orbit Num.'] = df['Attributes'].apply(lambda x: next((prop['Value'] for prop in x if prop['Name'] == 'relativeOrbitNumber'), None))
+                    df['Product Type'] = df['Attributes'].apply(lambda x: next((prop['Value'] for prop in x if prop['Name'] == 'productType'), None))
+                    df['Beginning DateTime'] = df['Attributes'].apply(lambda x: next((prop['Value'] for prop in x if prop['Name'] == 'beginningDateTime'), None))
+                    df['Ending DateTime'] = df['Attributes'].apply(lambda x: next((prop['Value'] for prop in x if prop['Name'] == 'endingDateTime'), None))
+                    # rimuovo 'Attributes'
+                    df.drop(columns=['Attributes'], inplace=True)
                     df_list.append(df)
                 else:
                     pass
@@ -257,23 +269,46 @@ with st.sidebar:
         st.error(':no_entry: Intervallo data non valido!!!')
   
     # query parameters
-    base_url = "https://catalogue.dataspace.copernicus.eu/odata/v1/Products"
-    filter_collection = "Collection/Name eq 'SENTINEL-2'"
-    filter_level = "contains(Name,'S2A_MSIL2A')"
-    filter_sensing_dt = "ContentDate/Start gt {}T00:00:00.000Z and ContentDate/Start lt {}T23:59:59.000Z".format(st.session_state['from_date'], st.session_state['to_date'])
-    filter_online = "(Online eq true or Online eq false)"
-    limit = '1000' #max = 1000
-
-    request_list = []
+    
+    # base_url = "https://catalogue.dataspace.copernicus.eu/odata/v1/Products"
+    # filter_collection = "Collection/Name eq 'SENTINEL-2'"
+    # filter_level = "contains(Name,'S2A_MSIL2A')"
+    # filter_sensing_dt = "ContentDate/Start gt {}T00:00:00.000Z and ContentDate/Start lt {}T23:59:59.000Z".format(st.session_state['from_date'], st.session_state['to_date'])
+    # filter_online = "(Online eq true or Online eq false)"
+    # limit = '1000' #max = 1000
     
     if len(tiles_to_search) == 0:
         tiles_to_search = st.session_state['region_tiles']
     
-    for tile in tiles_to_search:
-        filter_tile = "contains(Name, '_{}_')".format(tile)
-        req = base_url +'?$filter={} and {} and {} and {} and {}&$orderby=ContentDate/Start desc&$top={}'.format(filter_collection, filter_level, filter_tile, filter_sensing_dt, filter_online, limit)
-        request_list.append(req)
+    # URL OData API
+    base_url = "https://catalogue.dataspace.copernicus.eu/odata/v1/Products?"
 
+    request_list = []
+    for tile in tiles_to_search:
+        #filter object
+        filter = {
+            'collection':'S2A',
+            'level':'L2A',
+            'tile': tile,
+            'from_dt': st.session_state['from_date'],
+            'to_dt':st.session_state['to_date'],
+            'limit':'1000'
+        }
+        req = base_url+"&$filter=contains(Name,'{}') and (startswith(Name,'{}') and (Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'instrumentShortName' and att/OData.CSC.StringAttribute/Value eq 'MSI') and (contains(Name,'{}') )) and Online eq true or Online eq false) and ContentDate/Start ge {}T00:00:00.000Z and ContentDate/Start lt {}T23:59:59.999Z&$orderby=ContentDate/Start desc&$expand=Attributes&$count=True&$top={}&$expand=Assets&$skip=0".format(
+            filter['tile'],filter['collection'],filter['level'],filter['from_dt'], filter['to_dt'],filter['limit']
+        )
+        request_list.append(req)
+    
+    
+    # for tile in tiles_to_search:
+    #     filter_tile = "contains(Name, '_{}_')".format(tile)
+    #     req = base_url +'?$filter={} and {} and {} and {} and {}&$orderby=ContentDate/Start desc&$top={}'.format(filter_collection, filter_level, filter_tile, filter_sensing_dt, filter_online, limit)
+    #     request_list.append(req)
+
+
+# df_tot = pd.concat(df_list, ignore_index=True)
+    
+    
 platform = 'Sentinel-2'
 product = 'S2MSI2A'
 st.write('Platform: **'+platform+'**, Product: **'+product+'**')   
@@ -311,13 +346,13 @@ with tab2:
             "features": []
         }
     
-        for (polygon, id, name) in zip(df['GeoFootprint'].values, df['Id'].values, df['Name'].values):
-            feature_obj = {"type":"Feature", "geometry": polygon, "properties":{"id":id, "name": name}}
+        for (polygon, id, name, cloud, tile) in zip(df['GeoFootprint'].values, df['Id'].values, df['Name'].values, df['Cloud %'].values, df['Tile'].values):
+            feature_obj = {"type":"Feature", "geometry": polygon, "properties":{"id":id, "name": name, "cloud %":cloud, "tile":tile}}
             geojson_obj['features'].append(feature_obj)
             
         # footprints s2 images
         s2tooltip = folium.GeoJsonTooltip(
-            fields=["id","name"],
+            fields=["id", "name", "tile","cloud %"],
             localize=True,
             sticky=False,
             labels=True,
