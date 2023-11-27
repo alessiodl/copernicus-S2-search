@@ -268,14 +268,6 @@ with st.sidebar:
     if st.session_state['day_delta'] == 'Invalid':
         st.error(':no_entry: Intervallo data non valido!!!')
   
-    # query parameters
-    
-    # base_url = "https://catalogue.dataspace.copernicus.eu/odata/v1/Products"
-    # filter_collection = "Collection/Name eq 'SENTINEL-2'"
-    # filter_level = "contains(Name,'S2A_MSIL2A')"
-    # filter_sensing_dt = "ContentDate/Start gt {}T00:00:00.000Z and ContentDate/Start lt {}T23:59:59.000Z".format(st.session_state['from_date'], st.session_state['to_date'])
-    # filter_online = "(Online eq true or Online eq false)"
-    # limit = '1000' #max = 1000
     
     if len(tiles_to_search) == 0:
         tiles_to_search = st.session_state['region_tiles']
@@ -298,16 +290,6 @@ with st.sidebar:
             filter['tile'],filter['collection'],filter['level'],filter['from_dt'], filter['to_dt'],filter['limit']
         )
         request_list.append(req)
-    
-    
-    # for tile in tiles_to_search:
-    #     filter_tile = "contains(Name, '_{}_')".format(tile)
-    #     req = base_url +'?$filter={} and {} and {} and {} and {}&$orderby=ContentDate/Start desc&$top={}'.format(filter_collection, filter_level, filter_tile, filter_sensing_dt, filter_online, limit)
-    #     request_list.append(req)
-
-
-# df_tot = pd.concat(df_list, ignore_index=True)
-    
     
 platform = 'Sentinel-2'
 product = 'S2MSI2A'
@@ -375,7 +357,6 @@ with tab2:
     except:
         pass
     
-    # m.fit_bounds(s2footprints.get_bounds(), padding=(120,120))
     
     folium_static(m, height=450)
     
