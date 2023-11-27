@@ -38,7 +38,7 @@ df_list = []
 def call_ecosystem_api():
     if len(st.session_state['region_tiles']) > 0:
         # Check dates
-        print(type(st.session_state['from_date']))
+        # print(type(st.session_state['from_date']))
         delta = st.session_state['to_date'] - st.session_state['from_date']
         # print(delta.days)
         if delta.days >= 0:
@@ -253,7 +253,7 @@ with st.sidebar:
     tiles_to_search = st.multiselect("Tiles", region_tiles, default=st.session_state['region_tiles'],
                             placeholder="Scegli una Regione per popolare...")
     
-    print(st.session_state['region_tiles'])
+    # print(st.session_state['region_tiles'])
     
     sideCol1, sideCol2 = st.columns(2)
     with sideCol1:
