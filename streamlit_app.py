@@ -54,7 +54,7 @@ def call_ecosystem_api():
                     # print('Immagini trovate per la singola richiesta: {}'.format(str(len(df))))
                     # aggiungo campi estratti da 'Attributes'
                     df['Tile'] = df['Attributes'].apply(lambda x: next((prop['Value'] for prop in x if prop['Name'] == 'tileId'), None))
-                    df['Cloud %'] = df['Attributes'].apply(lambda x: next((prop['Value'] for prop in x if prop['Name'] == 'cloudCover'), None))
+                    df['Cloud %'] = df['Attributes'].apply(lambda x: next((round(prop['Value'],5) for prop in x if prop['Name'] == 'cloudCover'), None))
                     df['Processing Date'] = df['Attributes'].apply(lambda x: next((prop['Value'] for prop in x if prop['Name'] == 'processingDate'), None))
                     df['Platform'] = df['Attributes'].apply(lambda x: next((prop['Value'] for prop in x if prop['Name'] == 'platformShortName'), None))
                     df['Instrument'] = df['Attributes'].apply(lambda x: next((prop['Value'] for prop in x if prop['Name'] == 'instrumentShortName'), None))
@@ -318,7 +318,8 @@ tab1, tab2, tab3 = st.tabs(["Elenco", "Footprint", "Richieste"])
 with tab1:
     st.dataframe(st.session_state['df'], use_container_width=True, hide_index=True, 
                  column_config={"GeoFootprint": None, 
-                                'OriginDate':st.column_config.DateColumn(format="DD/MM/YYYY")
+                                'OriginDate':st.column_config.DateColumn(format="DD/MM/YYYY"),
+                                'Cloud %': st.column_config.ProgressColumn(min_value=0, max_value=100,format="%.3f")
                 })
     try:
         online_count = len(st.session_state['df'][st.session_state['df']["Online"]])
