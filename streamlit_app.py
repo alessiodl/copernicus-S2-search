@@ -30,7 +30,7 @@ if 'selected_regions' not in st.session_state:
 if 'region_tiles' not in st.session_state:
     st.session_state['region_tiles'] = ['R122_T33TUG', 'R122_T33TUH', 'R079_T33TVG', 'R122_T33TVH']
 
-st.header(':satellite: Ricerca immagini Sentinel 2', divider='blue')
+st.header(":satellite: Ricerca immagini Sentinel 2 per l'Italia :flag-it:", divider='blue')
 st.write('*Copernicus Data Space Ecosystem OData API*')
 
 # Launch request
